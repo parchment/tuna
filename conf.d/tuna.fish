@@ -31,32 +31,6 @@ function _tuna_pwd --on-variable PWD --on-variable tuna_ignored_git_paths --on-v
     )
 end
 
-function _tuna_postexec --on-event fish_postexec
-    set --local last_status $pipestatus
-    set --global _tuna_status "$_tuna_newline$_tuna_color_prompt$tuna_symbol_prompt"
-
-    for code in $last_status
-        if test $code -ne 0
-            set --global _tuna_status "$_tuna_color_error| "(echo $last_status)" $_tuna_newline$_tuna_color_prompt$_tuna_color_error$tuna_symbol_prompt"
-            break
-        end
-    end
-
-    test "$CMD_DURATION" -lt 1000 && set _tuna_cmd_duration && return
-
-    set --local secs (math --scale=1 $CMD_DURATION/1000 % 60)
-    set --local mins (math --scale=0 $CMD_DURATION/60000 % 60)
-    set --local hours (math --scale=0 $CMD_DURATION/3600000)
-
-    set --local out
-
-    test $hours -gt 0 && set --local --append out $hours"h"
-    test $mins -gt 0 && set --local --append out $mins"m"
-    test $secs -gt 0 && set --local --append out $secs"s"
-
-    set --global _tuna_cmd_duration "$out "
-end
-
 function _tuna_prompt --on-event fish_prompt
     set --query _tuna_status || set --global _tuna_status "$_tuna_newline$_tuna_color_prompt$tuna_symbol_prompt"
     set --query _tuna_pwd || _tuna_pwd
@@ -119,14 +93,6 @@ for color in tuna_color_{pwd,git,error,prompt,duration}
         set --query $color && set --global _$color (set_color $$color)
     end && $color
 end
-
-function tuna_multiline --on-variable tuna_multiline
-    if test "$tuna_multiline" = true
-        set --global _tuna_newline "\n"
-    else
-        set --global _tuna_newline ""
-    end
-end && tuna_multiline
 
 # Newline if previous output exists
 function postexec_test --on-event fish_postexec
