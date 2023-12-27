@@ -94,6 +94,14 @@ for color in tuna_color_{pwd,git,error,prompt,duration}
     end && $color
 end
 
+function tuna_multiline --on-variable tuna_multiline
+    if test "$tuna_multiline" = true
+        set --global _tuna_newline "\n"
+    else
+        set --global _tuna_newline ""
+    end
+end && tuna_multiline
+
 # Newline if previous output exists
 function postexec_test --on-event fish_postexec
     echo
